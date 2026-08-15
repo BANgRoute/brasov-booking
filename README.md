@@ -61,17 +61,4 @@ anything — it's just a nicer front door. To actually prevent bookings for
 a broken bike, pause its event type in Calendly itself (Calendly dashboard
 → that event type → toggle it off) whenever you add it to `unavailable`.
 
-## Hosting / embedding under carrd.co
 
-Carrd itself can't host multi-section custom HTML/JS on a free plan, so
-pick one of:
-
-1. **Host this file separately** (GitHub Pages, Netlify, Vercel, Cloudflare
-   Pages — all free for a static file) and point a Carrd **Button/Link**
-   element at that URL, e.g. "Rezervă acum" → `https://your-username.github.io/cargocicleta/`.
-2. **Paste it into a Carrd "Embed → Code" element** (requires a Carrd Pro
-   plan) if you want it to live directly inside the existing carrd.co
-   page instead of linking out.
-
-Option 1 is the simplest and keeps the current carrd.co page as-is; you'd
-just swap its two bike links for one link to this page.
