@@ -31,6 +31,42 @@ Edit the `BIKES` array near the top of the `<script>` in `index.html`:
   (`#0b1024`) with a violet glow, deep-violet primary color (`#2f0094`),
   rounded cards, pill buttons/tabs.
 
+## Marking a bike out of service
+
+Edit `status.json` (sits next to `index.html`) — no need to touch the page
+itself:
+
+```json
+{
+  "unavailable": ["bike3"]
+}
+```
+
+List whichever bike ids (`bullitt`, `omnium`, `bike3` — matching each
+bike's `id` in the `BIKES` array) are currently broken/in maintenance.
+Empty array = all 3 bookable. The page fetches this file on every load, so
+updating it on GitHub takes effect immediately, no redeploy of `index.html`
+needed.
+
+An unavailable bike still shows on the page (greyed out, "Indisponibilă
+momentan") rather than disappearing, so customers know it exists but can't
+click it. The "show all" toggle and its tabs only ever include bikes that
+are currently available.
+
+This used to be a `?unavailable=...` URL param, but that's visible and
+editable by anyone in the address bar — a customer could just delete it
+to make a broken bike look bookable again. `status.json` isn't part of the
+URL a visitor sees or is invited to edit, so it's not something a casual
+visitor stumbles into changing.
+
+**Important limit:** greying out a bike here only changes what this page
+*displays*. It does **not** stop someone from booking directly at that
+bike's raw Calendly link (e.g. by finding it in browser history, or if it's
+still linked anywhere else). This page has no server and can't enforce
+anything — it's just a nicer front door. To actually prevent bookings for
+a broken bike, pause its event type in Calendly itself (Calendly dashboard
+→ that event type → toggle it off) whenever you add it to `unavailable`.
+
 ## Hosting / embedding under carrd.co
 
 Carrd itself can't host multi-section custom HTML/JS on a free plan, so

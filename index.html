@@ -118,6 +118,27 @@
     background: #faf9ff;
     box-shadow: 0 10px 26px rgba(47,0,148,0.18);
   }
+  .bike-card.unavailable {
+    cursor: default;
+    opacity: 0.55;
+    filter: grayscale(0.5);
+  }
+  .bike-card.unavailable:hover {
+    border-color: var(--border);
+    box-shadow: 0 1px 2px rgba(11,16,36,0.04);
+    transform: none;
+  }
+  .unavailable-badge {
+    margin-top: 6px;
+    align-self: flex-start;
+    background: #f1f0f6;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
   .bike-card img {
     width: 100%;
     aspect-ratio: 16 / 10;
@@ -168,6 +189,11 @@
     min-height: 46px;
   }
   .any-toggle:active { background: #f4f1ff; }
+  .any-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .any-toggle:disabled:active { background: #fff; }
 
   .note {
     margin-top: 14px;
@@ -351,6 +377,30 @@
   ];
   // ---------------------------------------------------------------
 
+  // ---------------------------------------------------------------
+  // Availability comes from status.json (same folder as this page), not
+  // from a URL param — a URL param is visible in the address bar and any
+  // visitor can edit it, which defeats the point of marking a bike out of
+  // service. status.json is only editable by whoever manages the repo.
+  // NOTE: this only hides/greys out a bike on THIS page — it does not stop
+  // someone from booking directly at the bike's raw Calendly link. Pause
+  // the corresponding Calendly event type when a bike is actually broken.
+  // ---------------------------------------------------------------
+  async function loadAvailability() {
+    try {
+      const res = await fetch(`status.json?_=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("status.json not found");
+      const data = await res.json();
+      const unavailableIds = new Set((data.unavailable || []).map(String));
+      return id => !unavailableIds.has(id);
+    } catch (e) {
+      // Missing/unreachable status.json (e.g. first deploy) -> default to
+      // "everything available" rather than hiding all bikes on an error.
+      return () => true;
+    }
+  }
+  let isAvailable = () => true;
+
   const bikeList = document.getElementById("bike-list");
   const bookingArea = document.getElementById("booking-area");
   const tabsEl = document.getElementById("tabs");
@@ -372,21 +422,26 @@
   function renderCards() {
     bikeList.innerHTML = "";
     BIKES.forEach(bike => {
+      const available = isAvailable(bike.id);
       const card = document.createElement("div");
-      card.className = "bike-card";
-      card.setAttribute("role", "button");
-      card.setAttribute("tabindex", "0");
+      card.className = "bike-card" + (available ? "" : " unavailable");
       card.innerHTML = `
         <img src="${bike.image || placeholderImg(bike.name)}" alt="${bike.name}">
         <h3>${bike.name}</h3>
         <p>${bike.desc}</p>
-        <span class="book-btn">Rezervă</span>
+        ${available
+          ? `<span class="book-btn">Rezervă</span>`
+          : `<span class="unavailable-badge">Indisponibilă momentan</span>`}
       `;
-      const activate = () => showBooking([bike.id]);
-      card.addEventListener("click", activate);
-      card.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
-      });
+      if (available) {
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+        const activate = () => showBooking([bike.id]);
+        card.addEventListener("click", activate);
+        card.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+        });
+      }
       bikeList.appendChild(card);
     });
   }
@@ -475,12 +530,26 @@
   }
 
   anyToggle.addEventListener("click", () => {
-    showBooking(BIKES.map(b => b.id));
+    const ids = BIKES.filter(b => isAvailable(b.id)).map(b => b.id);
+    if (ids.length) showBooking(ids);
   });
 
   backLink.addEventListener("click", hideBooking);
 
-  renderCards();
+  (async () => {
+    isAvailable = await loadAvailability();
+    renderCards();
+
+    const availableCount = BIKES.filter(b => isAvailable(b.id)).length;
+    if (availableCount === 0) {
+      anyToggle.disabled = true;
+      anyToggle.textContent = "Nicio bicicletă disponibilă momentan";
+    } else if (availableCount === 1) {
+      anyToggle.hidden = true;
+    } else if (availableCount < BIKES.length) {
+      anyToggle.textContent = `Nu ești sigur(ă)? Arată-mi cele ${availableCount} disponibile`;
+    }
+  })();
 </script>
 
 </body>

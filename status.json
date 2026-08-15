@@ -1,0 +1,4 @@
+{
+  "_comment": "List the ids (from BIKES in index.html) of bikes currently out of service. Empty array = all 3 bookable.",
+  "unavailable": []
+}
