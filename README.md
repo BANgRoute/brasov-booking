@@ -1,35 +1,30 @@
 # Cargocicleta Brașov — bike picker
 
 Single self-contained page (`index.html`) that lets a customer pick one of
-the 3 cargobikes and book it via its Calendly inline widget. No API key,
-no build step, no server — just static HTML/CSS/JS.
+the 3 cargobikes and book it — each card links straight to that bike's
+Calendly scheduling page. No API key, no build step, no server — just
+static HTML/CSS/JS.
 
 ## Before going live
 
 Edit the `BIKES` array near the top of the `<script>` in `index.html`:
 
-- `bullitt` and `omnium` already use the real Calendly links found on the
-  current carrd.co page.
-- `bike3` has a placeholder Calendly URL (`PUNE-LINKUL-AICI`) — replace it
-  with the third bike's real Calendly scheduling link, and update its
-  `name`/`desc`.
-- Optionally set `image` on each bike to a real photo URL; otherwise a
-  placeholder tile is generated automatically.
+- All three bikes already have their real Calendly links.
+- `image` is a path relative to `index.html` (e.g. `images/bullitt.jpg`).
+  Drop the photo files in the `images/` folder with matching names; a bike
+  with an empty `image` gets an auto-generated placeholder tile instead.
 
 ## Behavior
 
-- Each bike is a card; clicking one loads that bike's Calendly booking
-  widget inline, below the cards.
-- "Nu ești sigur(ă)? Arată-mi toate cele 3 calendare" reveals all three
-  widgets behind quick-switch tabs, so a customer can flip between bikes
-  if their first choice has no open slot — without leaving the page.
-- Fully responsive: cards reflow to a single column below 480px, buttons
-  and tabs are sized for touch (≥40px targets), the calendar widget height
-  adapts to viewport instead of a fixed 700px, and safe-area insets are
-  respected on notched phones.
+- Each bike is a card (image, name, short description, "Rezervă" button);
+  tapping/clicking anywhere on an available bike's card navigates straight
+  to that bike's Calendly page — no intermediate step, no embedded widget.
+- On phones (≤480px wide), the cards become a full-width, one-at-a-time
+  horizontal swipe carousel — Bullitt → Omnium → Tricicletă cargo, left to
+  right. On wider screens they sit in a multi-column grid.
 - Styled to match [rastel.io](https://rastel.io)'s look: dark navy hero
   (`#0b1024`) with a violet glow, deep-violet primary color (`#2f0094`),
-  rounded cards, pill buttons/tabs.
+  rounded cards, pill buttons.
 
 ## Marking a bike out of service
 
@@ -50,8 +45,7 @@ needed.
 
 An unavailable bike still shows on the page (greyed out, "Indisponibilă
 momentan") rather than disappearing, so customers know it exists but can't
-click it. The "show all" toggle and its tabs only ever include bikes that
-are currently available.
+click it.
 
 This used to be a `?unavailable=...` URL param, but that's visible and
 editable by anyone in the address bar — a customer could just delete it
