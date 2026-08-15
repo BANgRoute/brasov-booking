@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1024">
+<title>Cargocicleta Brașov — Rezervări</title>
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+<style>
+  :root {
+    --primary: #2f0094;
+    --primary-dark: #210069;
+    --primary-light: #6d3bff;
+    --dark: #0b1024;
+    --bg: #f8f7fc;
+    --card-bg: #ffffff;
+    --text: #0b1024;
+    --muted: #5c5f78;
+    --border: #e6e4f1;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --safe-l: max(16px, env(safe-area-inset-left));
+    --safe-r: max(16px, env(safe-area-inset-right));
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: max(28px, env(safe-area-inset-top)) var(--safe-r) 34px var(--safe-l);
+    background: var(--dark);
+    color: #fff;
+    border-radius: 0 0 28px 28px;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    inset: -40% -20% auto -20%;
+    height: 260px;
+    background: radial-gradient(closest-side, rgba(109,59,255,0.55), transparent 70%);
+    pointer-events: none;
+  }
+  header .eyebrow {
+    position: relative;
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #c9bfff;
+    background: rgba(109,59,255,0.18);
+    border: 1px solid rgba(109,59,255,0.4);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    position: relative;
+    margin: 0 0 8px;
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    letter-spacing: -0.01em;
+  }
+  header p {
+    position: relative;
+    margin: 0;
+    color: #c7c9de;
+    font-size: clamp(0.92rem, 3.4vw, 1rem);
+    max-width: 480px;
+    margin-inline: auto;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px var(--safe-r) 60px var(--safe-l);
+  }
+
+  .bikes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 480px) {
+    .bikes { grid-template-columns: 1fr; }
+  }
+
+  .bike-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    text-align: left;
+    box-shadow: 0 1px 2px rgba(11,16,36,0.04);
+  }
+  .bike-card:hover, .bike-card:focus-visible {
+    border-color: var(--primary-light);
+    box-shadow: 0 10px 26px rgba(47,0,148,0.14);
+    transform: translateY(-2px);
+    outline: none;
+  }
+  .bike-card:active { transform: translateY(0); }
+  .bike-card.active {
+    border-color: var(--primary);
+    background: #faf9ff;
+    box-shadow: 0 10px 26px rgba(47,0,148,0.18);
+  }
+  .bike-card img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    background: #ece9f7;
+  }
+  .bike-card h3 {
+    margin: 4px 0 0;
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+  }
+  .bike-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+    flex: 1;
+    line-height: 1.45;
+  }
+  .bike-card .book-btn {
+    margin-top: 6px;
+    align-self: flex-start;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .bike-card.active .book-btn { background: var(--primary-dark); }
+
+  .any-toggle {
+    display: block;
+    margin: 18px auto 0;
+    background: #fff;
+    border: 1.5px dashed #c9bfff;
+    color: var(--primary-dark);
+    padding: 13px 16px;
+    border-radius: var(--radius-md);
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    min-height: 46px;
+  }
+  .any-toggle:active { background: #f4f1ff; }
+
+  .note {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.5;
+    padding: 0 4px;
+  }
+
+  .booking-area { margin-top: 26px; }
+  .booking-area[hidden] { display: none; }
+
+  .back-link {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--primary-dark);
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 8px 2px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .booking-area[data-visible] .back-link { display: inline-flex; }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 2px 8px;
+    margin-bottom: 6px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(var(--bg) 78%, transparent);
+    z-index: 5;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 40px;
+  }
+  .tabs button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 6px 16px rgba(47,0,148,0.28);
+  }
+
+  .calendly-inline-widget {
+    min-width: 280px;
+    width: 100%;
+    height: min(72vh, 760px);
+    min-height: 520px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(11,16,36,0.06);
+  }
+
+  .widget-loading {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    padding: 24px;
+  }
+  .widget-fallback {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    padding: 24px;
+  }
+  .widget-fallback p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    max-width: 320px;
+  }
+  .widget-fallback a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 12px 20px;
+    border-radius: 999px;
+    min-height: 44px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 22px var(--safe-r) max(24px, env(safe-area-inset-bottom)) var(--safe-l);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  footer a { color: var(--primary-dark); font-weight: 600; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">Hub e-cargobiciclete · Brașov</span>
+  <h1>Cargocicleta Brașov</h1>
+  <p>Alege bicicleta dorită și rezervă un interval direct în calendar.</p>
+</header>
+
+<main>
+  <div class="bikes" id="bike-list"></div>
+
+  <button class="any-toggle" id="any-toggle" type="button">
+    Nu ești sigur(ă)? Arată-mi toate cele 3 calendare
+  </button>
+  <p class="note">Dacă bicicleta aleasă nu este disponibilă în intervalul dorit, revino aici și alege altă bicicletă.</p>
+
+  <section class="booking-area" id="booking-area" hidden>
+    <button class="back-link" id="back-link" type="button">&larr; Înapoi la biciclete</button>
+    <div class="tabs" id="tabs"></div>
+    <div class="calendly-inline-widget" id="calendly-embed"></div>
+  </section>
+</main>
+
+<footer>
+  Cargocicleta Brașov · rezervări prin Calendly · un proiect <a href="https://rastel.io" target="_blank" rel="noopener">Rastel.io</a>
+</footer>
+
+<script>
+  // ---------------------------------------------------------------
+  // EDIT HERE: one entry per cargobike. `calendly` must be the full
+  // public scheduling link for that bike's Calendly event type.
+  // ---------------------------------------------------------------
+  const BIKES = [
+    {
+      id: "bullitt",
+      name: "Bullitt long-john",
+      desc: "Cargobike lungă, stabilă, ideală pentru transport de volum mare.",
+      image: "",
+      calendly: "https://calendly.com/cargocicleta-2-brasov/30min"
+    },
+    {
+      id: "omnium",
+      name: "Omnium short-john",
+      desc: "Cargobike compactă, agilă, perfectă pentru oraș.",
+      image: "",
+      calendly: "https://calendly.com/cargocicleta-1-brasov/30min"
+    },
+    {
+      id: "bike3",
+      name: "A treia bicicletă",
+      desc: "Completează cu numele și descrierea celei de-a treia biciclete.",
+      image: "",
+      calendly: "https://calendly.com/PUNE-LINKUL-AICI/30min"
+    }
+  ];
+  // ---------------------------------------------------------------
+
+  const bikeList = document.getElementById("bike-list");
+  const bookingArea = document.getElementById("booking-area");
+  const tabsEl = document.getElementById("tabs");
+  const embedEl = document.getElementById("calendly-embed");
+  const anyToggle = document.getElementById("any-toggle");
+  const backLink = document.getElementById("back-link");
+
+  let activeIds = [];
+
+  function placeholderImg(name) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="250">
+      <rect width="100%" height="100%" fill="#ece9f7"/>
+      <text x="50%" y="50%" font-family="sans-serif" font-size="18" fill="#5c5f78"
+        text-anchor="middle" dominant-baseline="middle">${name}</text>
+    </svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  }
+
+  function renderCards() {
+    bikeList.innerHTML = "";
+    BIKES.forEach(bike => {
+      const card = document.createElement("div");
+      card.className = "bike-card";
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      card.innerHTML = `
+        <img src="${bike.image || placeholderImg(bike.name)}" alt="${bike.name}">
+        <h3>${bike.name}</h3>
+        <p>${bike.desc}</p>
+        <span class="book-btn">Rezervă</span>
+      `;
+      const activate = () => showBooking([bike.id]);
+      card.addEventListener("click", activate);
+      card.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+      });
+      bikeList.appendChild(card);
+    });
+  }
+
+  function markActiveCards() {
+    [...bikeList.children].forEach((card, i) => {
+      card.classList.toggle("active", activeIds.includes(BIKES[i].id));
+    });
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = "";
+    if (activeIds.length <= 1) { tabsEl.hidden = true; return; }
+    tabsEl.hidden = false;
+    activeIds.forEach(id => {
+      const bike = BIKES.find(b => b.id === id);
+      const btn = document.createElement("button");
+      btn.textContent = bike.name;
+      btn.className = id === currentTab ? "active" : "";
+      btn.addEventListener("click", () => selectTab(id));
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  let currentTab = null;
+  let loadToken = 0;
+
+  function loadWidget(id) {
+    const bike = BIKES.find(b => b.id === id);
+    const token = ++loadToken;
+
+    embedEl.innerHTML = `<div class="widget-loading">Se încarcă programul de rezervări…</div>`;
+    embedEl.setAttribute("data-url", bike.calendly);
+
+    const init = () => {
+      if (token !== loadToken) return; // a newer tab was selected meanwhile
+      embedEl.innerHTML = "";
+      window.Calendly.initInlineWidget({ url: bike.calendly, parentElement: embedEl });
+    };
+
+    if (window.Calendly) {
+      init();
+    } else {
+      const retry = setInterval(() => {
+        if (token !== loadToken) { clearInterval(retry); return; }
+        if (window.Calendly) { clearInterval(retry); init(); }
+      }, 200);
+    }
+
+    // Safety net: if no Calendly iframe shows up in time (blocked script,
+    // ad-blocker, offline, or opened as a local file:// page), offer a
+    // direct link so booking still works instead of a silently empty box.
+    setTimeout(() => {
+      if (token !== loadToken) return;
+      if (embedEl.querySelector("iframe")) return;
+      embedEl.innerHTML = `
+        <div class="widget-fallback">
+          <p>Calendarul nu s-a putut încărca aici (posibil AdBlock sau conexiune).</p>
+          <a href="${bike.calendly}" target="_blank" rel="noopener">Deschide rezervarea într-o filă nouă &rarr;</a>
+        </div>`;
+    }, 6000);
+  }
+
+  function selectTab(id) {
+    currentTab = id;
+    renderTabs();
+    loadWidget(id);
+  }
+
+  function showBooking(ids) {
+    activeIds = ids;
+    markActiveCards();
+    bookingArea.hidden = false;
+    bookingArea.setAttribute("data-visible", "");
+    renderTabs();
+    selectTab(ids[0]);
+    bookingArea.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function hideBooking() {
+    activeIds = [];
+    markActiveCards();
+    bookingArea.hidden = true;
+    bookingArea.removeAttribute("data-visible");
+    bikeList.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  anyToggle.addEventListener("click", () => {
+    showBooking(BIKES.map(b => b.id));
+  });
+
+  backLink.addEventListener("click", hideBooking);
+
+  renderCards();
+</script>
+
+</body>
+</html>
