@@ -48,6 +48,17 @@
     background: radial-gradient(closest-side, rgba(109,59,255,0.55), transparent 70%);
     pointer-events: none;
   }
+  header .brand-logo {
+    position: relative;
+    display: block;
+    height: 26px;
+    width: auto;
+    margin: 0 auto 16px;
+    background: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  }
   header .eyebrow {
     position: relative;
     display: inline-block;
@@ -90,7 +101,9 @@
   }
   @media (max-width: 480px) {
     /* One bike fills the screen at a time; swipe left/right through
-       Bullitt -> Omnium -> Tricicletă cargo in order. */
+       Bullitt -> Omnium -> Tricicletă cargo in order. Cards are slightly
+       narrower than the viewport so the next one peeks in at the edge —
+       a visual cue that there's more to swipe to. */
     .bikes {
       display: flex;
       flex-wrap: nowrap;
@@ -98,13 +111,39 @@
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
+      gap: 12px;
+      padding-right: 14%;
     }
     .bikes::-webkit-scrollbar { display: none; }
     .bike-card {
-      flex: 0 0 100%;
+      flex: 0 0 86%;
       scroll-snap-align: start;
       scroll-snap-stop: always;
     }
+  }
+
+  .swipe-dots {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    margin-top: 14px;
+  }
+  @media (max-width: 480px) {
+    .swipe-dots[data-count]:not([data-count="1"]) { display: flex; }
+  }
+  .swipe-dots .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    padding: 0;
+    border: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .swipe-dots .dot.active {
+    background: var(--primary);
+    transform: scale(1.35);
   }
 
   .bike-card {
@@ -202,6 +241,7 @@
 <body>
 
 <header>
+  <img class="brand-logo" src="images/rastel-logo.png" alt="Rastel.io">
   <span class="eyebrow">Hub e-cargobiciclete · Brașov</span>
   <h1>Cargocicleta Brașov</h1>
   <p>Alege bicicleta dorită și rezervă un interval direct în calendar.</p>
@@ -209,6 +249,7 @@
 
 <main>
   <div class="bikes" id="bike-list"></div>
+  <div class="swipe-dots" id="swipe-dots"></div>
   <p class="note">Dacă bicicleta aleasă nu este disponibilă în intervalul dorit, revino aici și alege altă bicicletă.</p>
 </main>
 
@@ -272,6 +313,7 @@
   let isAvailable = () => true;
 
   const bikeList = document.getElementById("bike-list");
+  const swipeDots = document.getElementById("swipe-dots");
 
   function placeholderImg(name) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="250">
@@ -303,9 +345,50 @@
     });
   }
 
+  function renderDots() {
+    swipeDots.innerHTML = "";
+    swipeDots.setAttribute("data-count", String(BIKES.length));
+    BIKES.forEach((bike, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "dot" + (i === 0 ? " active" : "");
+      dot.setAttribute("aria-label", bike.name);
+      dot.addEventListener("click", () => {
+        const card = bikeList.children[i];
+        if (card) card.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+      });
+      swipeDots.appendChild(dot);
+    });
+  }
+
+  // Highlights the dot for whichever card is currently leading the
+  // viewport, so the dots double as a "you are here" indicator while
+  // swiping, not just a static count.
+  function bindSwipeTracking() {
+    let ticking = false;
+    bikeList.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const cards = [...bikeList.children];
+        const listLeft = bikeList.getBoundingClientRect().left;
+        let closest = 0;
+        let closestDist = Infinity;
+        cards.forEach((card, i) => {
+          const dist = Math.abs(card.getBoundingClientRect().left - listLeft);
+          if (dist < closestDist) { closestDist = dist; closest = i; }
+        });
+        [...swipeDots.children].forEach((dot, i) => dot.classList.toggle("active", i === closest));
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
   (async () => {
     isAvailable = await loadAvailability();
     renderCards();
+    renderDots();
+    bindSwipeTracking();
   })();
 </script>
 
