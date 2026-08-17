@@ -60,5 +60,3 @@ still linked anywhere else). This page has no server and can't enforce
 anything — it's just a nicer front door. To actually prevent bookings for
 a broken bike, pause its event type in Calendly itself (Calendly dashboard
 → that event type → toggle it off) whenever you add it to `unavailable`.
-
-
